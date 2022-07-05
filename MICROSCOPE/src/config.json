@@ -1,7 +1,7 @@
 {
     "PATH": {
-        "image": "img/",
-        "video": "vid/"
+        "image": "../img/",
+        "video": "../vid/"
     },
     "BLOCK" :{
         "read_block" : 1

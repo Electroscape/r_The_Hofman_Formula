@@ -30,7 +30,7 @@ city = argparser.parse_args().city
 Load config
 =========================================================================================================
 '''
-with open('src/config.json', 'r') as config_file:
+with open('config.json', 'r') as config_file:
     config = json.load(config_file)
 
 

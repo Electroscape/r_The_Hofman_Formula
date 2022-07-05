@@ -4,6 +4,6 @@ xhost +
 sudo pkill python
 sudo pkill vlc
 
-cd ~/MICROSCOPE
+cd ~/MICROSCOPE/src
 
-python3 src/microscope.py -c hh
+python3 ~/MICROSCOPE/src/microscope.py -c hh
