@@ -1,7 +1,7 @@
 {
     "PATH": {
-        "image": "/home/2cp/MICROSCOPE/img/",
-        "video": "/home/2cp/MICROSCOPE/vid/"
+        "image": "img/",
+        "video": "vid/"
     },
     "BLOCK" :{
         "read_block" : 1

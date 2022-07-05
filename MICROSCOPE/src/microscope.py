@@ -1,22 +1,22 @@
-from time import sleep
-import os
-import json
+import argparse
 import board
 import busio
+import json
+import os
 import vlc
-import argparse
 
-from adafruit_pn532.i2c import PN532_I2C
+
 
 from adafruit_pn532.adafruit_pn532 import MIFARE_CMD_AUTH_A
-
+from adafruit_pn532.i2c import PN532_I2C
+from time import sleep
 '''
 =========================================================================================================
 Argument parser
 =========================================================================================================
 '''
 argparser = argparse.ArgumentParser(
-    description='Fingerprint Scanner')
+    description='Microscope')
 
 argparser.add_argument(
     '-c',
@@ -30,7 +30,7 @@ city = argparser.parse_args().city
 Load config
 =========================================================================================================
 '''
-with open('config.json', 'r') as config_file:
+with open('src/config.json', 'r') as config_file:
     config = json.load(config_file)
 
 
@@ -80,18 +80,7 @@ def play_video(path):
     player.set_fullscreen(True) # set full screen
     player.set_mrl(path)    #setting the media in the mediaplayer object created
     player.play()           # play the video
-
-    while True:
-
-        uid = rfid_present()
-        if uid == None  :
-            pn532.SAM_configuration()
-            if player.get_state() == vlc.State.Ended :
-                play_video(path)
-            else: 
-                pass      
-        else:
-            break
+    
 
 '''
 =========================================================================================================
@@ -159,43 +148,29 @@ def authenticate(uid, read_block):
 '''
 
 def main():
-
-    
-    print('Welcome to Microscope')
-    print('Waiting Card')
+    ptoe = False    #Periodic table of elements
 
     while True:
-
-        play_video(config['PATH']['video'] + "/Periodensystem_169_schwarz.mp4")
         
-        uid = rfid_present()
-
-        if uid:
-            print('Card found')
-            try:
-                # if classic tag
-                auth = authenticate(uid, config["BLOCK"]["read_block"])
-            except Exception:
-                # if ntag
-                auth = False
-
-            read_data = rfid_read(uid,config["BLOCK"]["read_block"])
-
-            print('data is: {}'.format(read_data))
-            
-            
-            if read_data == "VR": 
-                
+        if rfid_present():
+            if rfid_read(rfid_present(),config["BLOCK"]["read_block"]) == "VR":
+                ptoe = False
                 play_video(config['PATH']['image']  + city +  "/Screen1.png")
-                print('Virus detected')
             else:
                 print('Wrong Card')
             
             while rfid_present():
                 continue
-
-            print("Card Removed")
-           
+        else:
+            if ptoe == False:
+                
+                ptoe = True
+                play_video(config['PATH']['video'] + "/Periodensystem_169_schwarz.mp4")
+               
+            else:
+                if player.get_state() == vlc.State.Ended :
+                    ptoe = False
+                      
 
 if __name__ == "__main__":
     main()
