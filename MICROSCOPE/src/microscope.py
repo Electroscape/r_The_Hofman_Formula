@@ -4,17 +4,20 @@ import busio
 import json
 import os
 import vlc
-
+import gc
+import sys
 
 
 from adafruit_pn532.adafruit_pn532 import MIFARE_CMD_AUTH_A
 from adafruit_pn532.i2c import PN532_I2C
 from time import sleep
+
 '''
 =========================================================================================================
 Argument parser
 =========================================================================================================
 '''
+
 argparser = argparse.ArgumentParser(
     description='Microscope')
 
@@ -24,6 +27,7 @@ argparser.add_argument(
     help='name of the city: [hh / st]')
 
 city = argparser.parse_args().city
+
 
 '''
 =========================================================================================================
@@ -42,7 +46,6 @@ PN532 init
 
 # I2C connection:
 i2c = busio.I2C(board.SCL, board.SDA)
-
 pn532 = PN532_I2C(i2c, debug=False)
 ic, ver, rev, support = pn532.firmware_version
 print("Found PN532 with firmware version: {0}.{1}".format(ver, rev))
@@ -89,6 +92,7 @@ RFID functions
 '''
 
 def rfid_read(uid, block):
+    
 
     '''
     Checks if the card is read or not 
@@ -121,7 +125,6 @@ def rfid_read(uid, block):
     return read_data
 
 def rfid_present():
-
     '''
     checks if the card is present inside the box
     '''
@@ -134,6 +137,7 @@ def rfid_present():
 
 
 def authenticate(uid, read_block):
+   
     rc = 0
     key = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
     rc = pn532.mifare_classic_authenticate_block(
@@ -148,10 +152,11 @@ def authenticate(uid, read_block):
 '''
 
 def main():
+   
     ptoe = False    #Periodic table of elements
-
+    
     while True:
-        
+        gc.collect()
         if rfid_present():
             if rfid_read(rfid_present(),config["BLOCK"]["read_block"]) == "VR":
                 ptoe = False
