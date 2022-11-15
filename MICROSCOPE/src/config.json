@@ -4,7 +4,8 @@
         "video": "../vid/"
     },
     "BLOCK" :{
-        "read_block" : 1
+        "read_block" : 1,
+        "NTAG_read_block":4
     }
 
 

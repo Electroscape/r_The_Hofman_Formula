@@ -49,6 +49,7 @@ i2c = busio.I2C(board.SCL, board.SDA)
 pn532 = PN532_I2C(i2c, debug=False)
 ic, ver, rev, support = pn532.firmware_version
 print("Found PN532 with firmware version: {0}.{1}".format(ver, rev))
+sleep(0.5)
 pn532.SAM_configuration() # Configure PN532 to communicate with MiFare cards
 
 
@@ -92,12 +93,11 @@ RFID functions
 '''
 
 def rfid_read(uid, block):
-    
+    read_data = ""
 
     '''
     Checks if the card is read or not 
     '''
-
     try:
         # if classic tag
         auth = authenticate(uid, block)
@@ -110,13 +110,12 @@ def rfid_read(uid, block):
         if auth:  # True for classic and False for ntags
             data = pn532.mifare_classic_read_block(block)
         else:
-            data = pn532.ntag2xx_read_block(block)
+            data = pn532.ntag2xx_read_block(config["BLOCK"]["NTAG_read_block"])
 
-        if data is not None:
+        if data:
             read_data = data.decode('utf-8')[:2]
-            
         else:
-            read_data = False
+            read_data = ""
             print("None block")
 
     except Exception as e:
@@ -132,7 +131,7 @@ def rfid_present():
         uid = pn532.read_passive_target(timeout=0.5) #read the card
     except RuntimeError:
         uid = None
-        return uid 
+
     return uid
 
 
@@ -157,18 +156,26 @@ def main():
     
     while True:
         gc.collect()
-        if rfid_present():
-            if rfid_read(rfid_present(),config["BLOCK"]["read_block"]) == "VR":
+        card_exist = rfid_present()
+        if card_exist:
+            print(f"Card found uid: {card_exist}")
+            card_read = rfid_read(card_exist, config["BLOCK"]["read_block"])
+            print(f"Data on card: {card_read}")
+            if card_read == "VR":
                 ptoe = False
                 play_video(config['PATH']['image']  + city +  "/Screen1.png")
             else:
                 print('Wrong Card')
             
-            while rfid_present():
+            # wait here until card is removed
+            # if wrong card should it stuck?!
+            while rfid_present() and card_read:
                 continue
+
+            print("card removed")
         else:
+            # replay periodic table
             if ptoe == False:
-                
                 ptoe = True
                 play_video(config['PATH']['video'] + "/Periodensystem_169_schwarz.mp4")
                
