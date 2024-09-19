@@ -1,0 +1,12 @@
+{
+    "PATH": {
+        "image": "../img/",
+        "video": "../vid/"
+    },
+    "BLOCK" :{
+        "read_block" : 1,
+        "NTAG_read_block":4
+    }
+
+
+}
